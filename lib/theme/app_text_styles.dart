@@ -7,7 +7,7 @@ abstract final class AppTextStyles {
     displaySmall: TextStyle(
       color: AppColors.ink,
       fontSize: 19,
-      fontWeight: FontWeight.w800,
+      fontWeight: FontWeight.w700,
       height: 1.2,
     ),
     headlineSmall: TextStyle(

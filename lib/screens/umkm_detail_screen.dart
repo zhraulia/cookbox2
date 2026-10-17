@@ -82,7 +82,7 @@ class _UmkmDetailScreenState extends State<UmkmDetailScreen> {
         backgroundColor: AppColors.surface,
         title: Text(
           umkm.name,
-          style: const TextStyle(fontWeight: FontWeight.w900),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: ListView(

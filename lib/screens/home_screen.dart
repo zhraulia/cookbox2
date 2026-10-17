@@ -456,7 +456,11 @@ class _HomeHeader extends StatelessWidget {
           onTap: onToggleFavorites,
         ),
         const SizedBox(width: 8),
-        _HeaderAction(icon: Icons.shopping_bag_outlined),
+        // Aksi keranjang membuka alur checkout.
+        _HeaderAction(
+          icon: Icons.shopping_bag_outlined,
+          onTap: () => Navigator.pushNamed(context, AppRoutes.checkout),
+        ),
         const SizedBox(width: 8),
         _HeaderAction(icon: Icons.notifications_none_rounded),
       ],
@@ -608,7 +612,7 @@ class _PromoBanner extends StatelessWidget {
                       color: Colors.white,
                       height: 1.05,
                       fontSize: 17,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -662,7 +666,7 @@ class _SectionHeading extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: AppColors.ink,
             ),
           ),
@@ -955,7 +959,7 @@ class _SmallTag extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(
           fontSize: 7,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w700,
           color: AppColors.ink,
         ),
       ),

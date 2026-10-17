@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/cart_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/login_provider.dart';
 import 'routes/app_routes.dart';
@@ -20,6 +21,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginProvider()),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+        // Provider keranjang untuk state lintas-screen.
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

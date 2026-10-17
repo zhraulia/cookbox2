@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Masuk ke CookBox',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.w900),
+                          ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
                     const Text(

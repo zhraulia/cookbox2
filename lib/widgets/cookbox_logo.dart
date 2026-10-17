@@ -24,7 +24,6 @@ class CookBoxLogo extends StatelessWidget {
               color: const Color(0xFF1D2B3F),
               fontSize: wordmarkSize,
               fontWeight: FontWeight.w800,
-              letterSpacing: compact ? -0.35 : -0.8,
             ),
             children: const [
               TextSpan(text: 'Cook'),

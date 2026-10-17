@@ -145,7 +145,7 @@ class _PromoPreferenceScreenState extends State<PromoPreferenceScreen> {
         backgroundColor: AppColors.surface,
         title: Text(
           _isEditing ? 'Ubah Pilihan Promo' : 'Ikuti UMKM',
-          style: const TextStyle(fontWeight: FontWeight.w900),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SafeArea(
