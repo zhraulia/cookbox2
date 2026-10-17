@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/item.dart';
+import '../providers/cart_provider.dart';
 import '../providers/favorites_provider.dart';
 import '../theme/app_colors.dart';
 
@@ -21,7 +22,7 @@ class DetailMenuScreen extends StatelessWidget {
         backgroundColor: AppColors.surface,
         title: const Text(
           'Detail Menu',
-          style: TextStyle(fontWeight: FontWeight.w900),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
         leading: IconButton(
           key: const ValueKey('detail-back'),
@@ -65,7 +66,7 @@ class DetailMenuScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 24,
               height: 1.15,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: AppColors.ink,
             ),
           ),
@@ -92,7 +93,7 @@ class DetailMenuScreen extends StatelessWidget {
             style: const TextStyle(
               color: AppColors.primary,
               fontSize: 19,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 10),
@@ -197,6 +198,23 @@ class DetailMenuScreen extends StatelessWidget {
           ),
         ],
       ),
+      // Tombol baru untuk menambahkan menu dari halaman detail.
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(16),
+        child: FilledButton(
+          onPressed: () {
+            context.read<CartProvider>().addItem(item);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${item.title} ditambahkan ke keranjang')),
+            );
+          },
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            minimumSize: const Size.fromHeight(48),
+          ),
+          child: const Text('Tambah ke Keranjang'),
+        ),
+      ),
     );
   }
 }
@@ -213,7 +231,7 @@ class _SectionTitle extends StatelessWidget {
       style: const TextStyle(
         color: AppColors.ink,
         fontSize: 18,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w700,
       ),
     );
   }

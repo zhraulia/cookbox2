@@ -180,7 +180,7 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
         backgroundColor: AppColors.surface,
         title: const Text(
           'UMKM Lokal',
-          style: TextStyle(fontWeight: FontWeight.w900),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: Column(

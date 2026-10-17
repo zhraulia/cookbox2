@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../models/item.dart';
+import '../models/order.dart';
+import '../screens/cart_checkout_screen.dart';
 import '../screens/detail_menu_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/not_found_screen.dart';
+import '../screens/order_confirmation_screen.dart';
 import '../models/umkm.dart';
 import '../screens/umkm_detail_screen.dart';
 import '../screens/umkm_list_screen.dart';
@@ -20,6 +23,9 @@ class AppRoutes {
   static const String promoForm = '/promo-form';
   static const String home = '/home';
   static const String detailMenu = '/detail-menu';
+  // Route baru untuk checkout dan konfirmasi pesanan.
+  static const String checkout = '/checkout';
+  static const String orderConfirmation = '/order-confirmation';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -38,6 +44,20 @@ class AppRoutes {
         if (args is Item) {
           return MaterialPageRoute<void>(
             builder: (_) => DetailMenuScreen(item: args),
+            settings: settings,
+          );
+        }
+        return null;
+      case checkout:
+        return MaterialPageRoute<void>(
+          builder: (_) => const CartCheckoutScreen(),
+          settings: settings,
+        );
+      case orderConfirmation:
+        final args = settings.arguments;
+        if (args is Order) {
+          return MaterialPageRoute<void>(
+            builder: (_) => OrderConfirmationScreen(order: args),
             settings: settings,
           );
         }
