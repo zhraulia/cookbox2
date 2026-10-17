@@ -33,4 +33,32 @@ class Validators {
     }
     return null;
   }
+
+  /// Angka bulat yang harus berada di antara [min] dan [max] (aturan "Range").
+  static String? numberInRange(
+    String? value,
+    int min,
+    int max, {
+    String fieldName = 'Nilai',
+  }) {
+    final requiredError = requiredField(value, fieldName: fieldName);
+    if (requiredError != null) return requiredError;
+
+    final number = int.tryParse(value!.trim());
+    if (number == null) return '$fieldName harus berupa angka bulat';
+    if (number < min || number > max) {
+      return '$fieldName harus di antara $min sampai $max';
+    }
+    return null;
+  }
+
+  /// Memastikan minimal satu pilihan dipilih (aturan "Required" untuk pilihan).
+  /// Memakai aturan yang sama: null = valid, teks = pesan error.
+  static String? atLeastOne(
+    Iterable<String> selected, {
+    String message = 'Pilih minimal 1 pilihan',
+  }) {
+    if (selected.isEmpty) return message;
+    return null;
+  }
 }
