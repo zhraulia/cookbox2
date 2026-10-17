@@ -12,7 +12,10 @@ import '../models/umkm.dart';
 import '../screens/umkm_detail_screen.dart';
 import '../screens/umkm_list_screen.dart';
 import '../models/promo_preference.dart';
+import '../models/review.dart';
+import '../screens/order_status_screen.dart';
 import '../screens/promo_preference_screen.dart';
+import '../screens/review_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -26,6 +29,9 @@ class AppRoutes {
   // Route baru untuk checkout dan konfirmasi pesanan.
   static const String checkout = '/checkout';
   static const String orderConfirmation = '/order-confirmation';
+  // Route Modul 3: Status Pesanan dan Beri Ulasan
+  static const String orders = '/orders';
+  static const String review = '/review';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -84,6 +90,21 @@ class AppRoutes {
           // Harus sama dengan tipe di pushNamed<PromoPreference>.
           return MaterialPageRoute<PromoPreference>(
             builder: (_) => PromoPreferenceScreen(umkm: args),
+            settings: settings,
+          );
+        }
+        return null;
+      case orders:
+        return MaterialPageRoute<void>(
+          builder: (_) => const OrderStatusScreen(),
+          settings: settings,
+        );
+      case review:
+        final args = settings.arguments;
+        if (args is Order) {
+          // Mengembalikan hasil objek Review saat Navigator.pop(context, review)
+          return MaterialPageRoute<Review>(
+            builder: (_) => ReviewScreen(order: args),
             settings: settings,
           );
         }

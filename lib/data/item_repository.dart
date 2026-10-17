@@ -74,6 +74,9 @@ class ItemRepository {
     ),
   ];
 
+  /// Mengambil daftar item dummy secara sinkron untuk modul lain.
+  static List<Item> get sampleItems => _items;
+
   /// Mengambil daftar item.
   Future<List<Item>> fetchItems() async {
     await Future.delayed(
