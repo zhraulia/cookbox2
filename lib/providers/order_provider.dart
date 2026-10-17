@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../data/order_repository.dart';
@@ -52,11 +53,52 @@ class OrderProvider extends ChangeNotifier {
     }
   }
 
-  /// Menambahkan pesanan baru ke repository dan state provider.
+  /// Menambahkan pesanan baru ke repository, state provider, dan memulai simulasi alur status.
   void addOrder(Order order) {
     _repository.addOrder(order);
     _orders.insert(0, order);
     notifyListeners();
+
+    // Memulai simulasi timer otomatis jika pesanan baru berstatus Dikemas
+    if (order.status == OrderStatus.dikemas) {
+      _startOrderSimulation(order.id);
+    }
+  }
+
+  /// Simulasi waktu alur pesanan otomatis:
+  /// - 10 detik pertama: Dikemas -> Dikirim
+  /// - 15 detik berikutnya: Dikirim -> Selesai
+  void _startOrderSimulation(String orderId) {
+    Timer(const Duration(seconds: 10), () {
+      final order = _findOrder(orderId);
+      if (order != null && order.status == OrderStatus.dikemas) {
+        updateOrderStatus(orderId, OrderStatus.dikirim);
+
+        Timer(const Duration(seconds: 15), () {
+          final current = _findOrder(orderId);
+          if (current != null && current.status == OrderStatus.dikirim) {
+            updateOrderStatus(orderId, OrderStatus.selesai);
+          }
+        });
+      }
+    });
+  }
+
+  /// Memperbarui status pesanan dan merefresh UI secara reaktif.
+  void updateOrderStatus(String orderId, OrderStatus newStatus) {
+    final updated = _repository.updateOrderStatus(orderId, newStatus);
+    final index = _orders.indexWhere((order) => order.id == orderId);
+    if (index != -1) {
+      _orders[index] = updated;
+      notifyListeners();
+    }
+  }
+
+  Order? _findOrder(String orderId) {
+    for (final order in _orders) {
+      if (order.id == orderId) return order;
+    }
+    return null;
   }
 
   /// Menambahkan atau memperbarui ulasan pada pesanan.

@@ -108,6 +108,17 @@ class OrderRepository {
     _orders.insert(0, order);
   }
 
+  /// Memperbarui status alur pesanan (simulasi: Dikemas -> Dikirim -> Selesai).
+  Order updateOrderStatus(String orderId, OrderStatus newStatus) {
+    final index = _orders.indexWhere((order) => order.id == orderId);
+    if (index == -1) {
+      throw ArgumentError.value(orderId, 'orderId', 'Pesanan tidak ditemukan.');
+    }
+    final updated = _orders[index].copyWith(status: newStatus);
+    _orders[index] = updated;
+    return updated;
+  }
+
   /// Menambahkan atau memperbarui ulasan pada pesanan tertentu.
   Order addReview(String orderId, Review review) {
     final index = _orders.indexWhere((order) => order.id == orderId);
