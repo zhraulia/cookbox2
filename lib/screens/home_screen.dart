@@ -856,9 +856,10 @@ class _HomeBottomBar extends StatelessWidget {
               icon: Icons.receipt_long_outlined,
               label: 'Pesanan',
             ),
-            const _NavigationItem(
+            _NavigationItem(
               icon: Icons.storefront_outlined,
               label: 'UMKM',
+              onTap: () => Navigator.pushNamed(context, AppRoutes.umkmList),
             ),
             const _NavigationItem(
               icon: Icons.person_outline_rounded,
@@ -876,29 +877,35 @@ class _NavigationItem extends StatelessWidget {
     required this.icon,
     required this.label,
     this.selected = false,
+    this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool selected;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final color = selected ? AppColors.accent : AppColors.muted;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(height: 3),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 8,
-            color: color,
-            fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 8,
+              color: color,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
