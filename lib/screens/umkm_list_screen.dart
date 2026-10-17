@@ -316,9 +316,6 @@ class _UmkmCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final buttonShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.radius),
-    );
     final promo = umkm.promo;
 
     return Card(
@@ -385,67 +382,110 @@ class _UmkmCard extends StatelessWidget {
                   ),
                 ],
               ),
-              // Ringkasan pilihan promo, hanya muncul kalau sudah mengikuti.
               if (promo != null) ...[
                 const SizedBox(height: AppSpacing.small),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.local_offer_outlined,
-                      size: _iconSize,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: AppSpacing.small),
-                    Expanded(
-                      child: Text(
-                        'Promo: ${promo.summary}',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                _PromoSummary(promo: promo),
               ],
               const SizedBox(height: AppSpacing.field),
-              Align(
-                alignment: Alignment.centerRight,
-                child: umkm.isFollowing
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextButton(
-                            onPressed: onUnfollow,
-                            child: const Text('Berhenti'),
-                          ),
-                          const SizedBox(width: AppSpacing.small),
-                          OutlinedButton.icon(
-                            onPressed: onEdit,
-                            icon: const Icon(Icons.edit_outlined),
-                            label: const Text('Ubah Promo'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.primary,
-                              side: const BorderSide(color: AppColors.primary),
-                              shape: buttonShape,
-                            ),
-                          ),
-                        ],
-                      )
-                    : FilledButton.icon(
-                        onPressed: onFollow,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Ikuti'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          shape: buttonShape,
-                        ),
-                      ),
+              _FollowActions(
+                umkm: umkm,
+                onFollow: onFollow,
+                onEdit: onEdit,
+                onUnfollow: onUnfollow,
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Ringkasan pilihan promo yang tampil di kartu setelah UMKM diikuti.
+class _PromoSummary extends StatelessWidget {
+  final PromoPreference promo;
+
+  const _PromoSummary({required this.promo});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      children: [
+        const Icon(
+          Icons.local_offer_outlined,
+          size: _iconSize,
+          color: AppColors.primary,
+        ),
+        const SizedBox(width: AppSpacing.small),
+        Expanded(
+          child: Text(
+            'Promo: ${promo.summary}',
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tombol aksi pada kartu: "Ikuti" saat belum diikuti,
+/// "Ubah Promo" dan "Berhenti" saat sudah diikuti.
+class _FollowActions extends StatelessWidget {
+  final Umkm umkm;
+  final VoidCallback onFollow;
+  final VoidCallback onEdit;
+  final VoidCallback onUnfollow;
+
+  const _FollowActions({
+    required this.umkm,
+    required this.onFollow,
+    required this.onEdit,
+    required this.onUnfollow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final buttonShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.radius),
+    );
+
+    return Align(
+      alignment: Alignment.centerRight,
+      child: umkm.isFollowing
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: onUnfollow,
+                  child: const Text('Berhenti'),
+                ),
+                const SizedBox(width: AppSpacing.small),
+                OutlinedButton.icon(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Ubah Promo'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: buttonShape,
+                  ),
+                ),
+              ],
+            )
+          : FilledButton.icon(
+              onPressed: onFollow,
+              icon: const Icon(Icons.add),
+              label: const Text('Ikuti'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: buttonShape,
+              ),
+            ),
     );
   }
 }
