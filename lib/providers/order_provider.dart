@@ -6,7 +6,10 @@ import '../models/review.dart';
 
 /// State management pesanan lintas-layar dengan pola ChangeNotifier Singleton.
 class OrderProvider extends ChangeNotifier {
-  OrderProvider._internal();
+  OrderProvider._internal() {
+    // Inisialisasi awal langsung dari repository agar data dummy selalu siap seketika.
+    _orders = List<Order>.from(OrderRepository.initialOrders);
+  }
 
   static final OrderProvider _instance = OrderProvider._internal();
 
@@ -18,7 +21,7 @@ class OrderProvider extends ChangeNotifier {
 
   final OrderRepository _repository = OrderRepository();
 
-  List<Order> _orders = [];
+  late List<Order> _orders;
   bool _isLoading = false;
   String? _errorMessage;
 

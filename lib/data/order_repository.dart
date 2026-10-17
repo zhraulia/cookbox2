@@ -91,6 +91,9 @@ class OrderRepository {
     ),
   ];
 
+  /// Mengambil daftar pesanan awal secara sinkron.
+  static List<Order> get initialOrders => List.unmodifiable(_orders);
+
   /// Mengambil daftar pesanan dengan simulasi asinkron.
   Future<List<Order>> fetchOrders({bool simulateError = false}) async {
     await Future.delayed(const Duration(milliseconds: 500));
