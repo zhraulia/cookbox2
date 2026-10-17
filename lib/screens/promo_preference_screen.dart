@@ -8,6 +8,7 @@ import '../utils/validators.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/state_views.dart';
+import '../utils/error_message.dart';
 
 /// Ukuran ikon kecil, diberi nama agar angkanya tidak tertulis di widget.
 const double _iconSize = 16;
@@ -128,9 +129,7 @@ class _PromoPreferenceScreenState extends State<PromoPreferenceScreen> {
     } catch (e) {
       if (!mounted) return;
       // Isian tetap ada, pengguna bisa menekan Simpan lagi untuk mencoba ulang.
-      setState(
-        () => _errorMessage = e.toString().replaceFirst('Exception: ', ''),
-      );
+      setState(() => _errorMessage = errorMessageOf(e));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
