@@ -16,6 +16,9 @@ import '../models/review.dart';
 import '../screens/order_status_screen.dart';
 import '../screens/promo_preference_screen.dart';
 import '../screens/review_screen.dart';
+// Import untuk Modul 5 (Pusat Bantuan & Pengaduan)
+import '../screens/support_screen.dart';
+import '../screens/add_report_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -32,6 +35,9 @@ class AppRoutes {
   // Route Modul 3: Status Pesanan dan Beri Ulasan
   static const String orders = '/orders';
   static const String review = '/review';
+  // Route Modul 5: Pusat Bantuan
+  static const String support = '/support';
+  static const String addReport = '/add-report';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -109,6 +115,23 @@ class AppRoutes {
           );
         }
         return null;
+        
+      // ==========================================
+      // Tambahan Rute untuk Modul 5 (Pusat Bantuan)
+      // ==========================================
+      case support:
+        return MaterialPageRoute<void>(
+          builder: (_) => const SupportScreen(),
+          settings: settings,
+        );
+      case addReport:
+        final args = settings.arguments;
+        // Jika dipanggil tanpa argumen, default-nya kategori 'Pesanan'
+        final category = args is String ? args : 'Pesanan';
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => AddReportScreen(initialCategory: category),
+          settings: settings,
+        );
 
       default:
         return null; // route tidak terdaftar -> halaman 404

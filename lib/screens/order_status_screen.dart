@@ -944,9 +944,10 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
               label: 'UMKM',
               onTap: () => Navigator.pushNamed(context, AppRoutes.umkmList),
             ),
-            const _NavigationItem(
+            _NavigationItem(
               icon: Icons.person_outline_rounded,
               label: 'Bantuan',
+              onTap: () => Navigator.pushNamed(context, AppRoutes.support),
             ),
           ],
         ),
