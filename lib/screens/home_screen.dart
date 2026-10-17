@@ -856,9 +856,10 @@ class _HomeBottomBar extends StatelessWidget {
               icon: Icons.restaurant_menu_rounded,
               label: 'Menu',
             ),
-            const _NavigationItem(
+            _NavigationItem(
               icon: Icons.receipt_long_outlined,
               label: 'Pesanan',
+              onTap: () => Navigator.pushNamed(context, AppRoutes.orders),
             ),
             _NavigationItem(
               icon: Icons.storefront_outlined,

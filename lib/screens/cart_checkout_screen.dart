@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/cart_item.dart';
 import '../models/order.dart';
 import '../providers/cart_provider.dart';
+import '../providers/order_provider.dart';
 import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -80,6 +81,8 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
         total: total,
       );
 
+      // Simpan pesanan yang berhasil dibuat ke OrderProvider agar muncul di Pesanan Saya.
+      context.read<OrderProvider>().addOrder(order);
       context.read<CartProvider>().clear();
       Navigator.pushReplacementNamed(
         context,

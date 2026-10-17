@@ -61,4 +61,26 @@ class Validators {
     if (selected.isEmpty) return message;
     return null;
   }
+
+  /// Memvalidasi bahwa rating bintang sudah dipilih (nilai lebih dari 0).
+  static String? rating(int? value) {
+    if (value == null || value <= 0) {
+      return 'Pilih rating bintang terlebih dahulu';
+    }
+    return null;
+  }
+
+  /// Memvalidasi panjang ulasan (minimal 10 karakter, maksimal 200 karakter).
+  static String? reviewComment(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Ulasan wajib diisi';
+    }
+    if (value.trim().length < 10) {
+      return 'Ulasan minimal 10 karakter';
+    }
+    if (value.trim().length > 200) {
+      return 'Ulasan maksimal 200 karakter';
+    }
+    return null;
+  }
 }
