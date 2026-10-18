@@ -13,4 +13,12 @@ abstract final class AppColors {
   static const infoBackground = Color(0xFFEEF2FF);
   static const infoAccent = Color(0xFFFFD9D1);
   static const error = Color(0xFFB94A48);
+  static const star = Color(0xFFFFB800);
+  static const starInactive = Color(0xFFCED1DE);
+  static const softAccent = Color(0xFFFDEEE8);
+  static const neutralLight = Color(0xFFEFF1F7);
+  static const fieldFill = Color(0xFFF3F4F8);
+  static const cardBackground = Color(0xFFF7F8FA);
+  static const badgeBackground = Color(0xFFE6E8F0);
+  static const chipSelected = Color(0xFFFFE4D7);
 }

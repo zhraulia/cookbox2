@@ -8,6 +8,7 @@ import '../providers/order_provider.dart';
 import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../utils/formatters.dart';
 import '../widgets/state_views.dart';
 
 // Data alamat dan biaya pengantaran masih dummy sesuai lingkup modul.
@@ -220,7 +221,7 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
                           color: AppColors.surface,
                         ),
                       )
-                    : Text('Konfirmasi Pesanan (${_formatRupiah(total)})'),
+                    : Text('Konfirmasi Pesanan (${AppFormatters.rupiah(total)})'),
               ),
             ),
     );
@@ -530,13 +531,13 @@ class _PaymentSummary extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: AppSpacing.section),
-          _SummaryRow(label: 'Subtotal Paket', value: _formatRupiah(subtotal)),
+          _SummaryRow(label: 'Subtotal Paket', value: AppFormatters.rupiah(subtotal)),
           const SizedBox(height: AppSpacing.field),
-          _SummaryRow(label: 'Ongkos Kirim', value: _formatRupiah(deliveryFee)),
+          _SummaryRow(label: 'Ongkos Kirim', value: AppFormatters.rupiah(deliveryFee)),
           const Divider(height: AppSpacing.section),
           _SummaryRow(
             label: 'Total Pembayaran',
-            value: _formatRupiah(total),
+            value: AppFormatters.rupiah(total),
             isTotal: true,
           ),
         ],
@@ -605,13 +606,4 @@ class _CartImageFallback extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatRupiah(int amount) {
-  final digits = amount.toString();
-  final grouped = digits.replaceAllMapped(
-    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-    (match) => '${match[1]}.',
-  );
-  return 'Rp $grouped';
 }

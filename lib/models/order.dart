@@ -1,3 +1,4 @@
+import '../utils/formatters.dart';
 import 'cart_item.dart';
 import 'review.dart';
 
@@ -44,14 +45,7 @@ class Order {
   /// Memeriksa apakah pesanan ini sudah diberi ulasan.
   bool get isReviewed => review != null;
 
-  String get totalLabel {
-    final digits = total.toString();
-    final grouped = digits.replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => '${match[1]}.',
-    );
-    return 'Rp $grouped';
-  }
+  String get totalLabel => AppFormatters.rupiah(total);
 
   /// Membuat salinan Order dengan atribut yang diperbarui.
   Order copyWith({
