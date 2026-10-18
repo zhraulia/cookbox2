@@ -313,8 +313,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                     ? Icons.star_rounded
                                     : Icons.star_outline_rounded,
                                 color: isSelected
-                                    ? const Color(0xFFFFB800)
-                                    : const Color(0xFFCED1DE),
+                                    ? AppColors.star
+                                    : AppColors.starInactive,
                               ),
                               onPressed: _isLoading
                                   ? null
@@ -377,7 +377,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         const SizedBox(height: AppSpacing.field),
                         Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF3F4F9),
+                            color: AppColors.fieldFill,
                             borderRadius: BorderRadius.circular(
                               AppSpacing.compactRadius,
                             ),

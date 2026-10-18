@@ -16,6 +16,7 @@ import '../models/review.dart';
 import '../screens/order_status_screen.dart';
 import '../screens/promo_preference_screen.dart';
 import '../screens/review_screen.dart';
+import '../screens/support_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -32,6 +33,7 @@ class AppRoutes {
   // Route Modul 3: Status Pesanan dan Beri Ulasan
   static const String orders = '/orders';
   static const String review = '/review';
+  static const String support = '/support';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -109,6 +111,11 @@ class AppRoutes {
           );
         }
         return null;
+      case support:
+        return MaterialPageRoute<void>(
+          builder: (_) => const SupportScreen(),
+          settings: settings,
+        );
 
       default:
         return null; // route tidak terdaftar -> halaman 404
