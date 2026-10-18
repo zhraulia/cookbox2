@@ -6,6 +6,7 @@ import '../data/item_repository.dart';
 import '../models/item.dart';
 import '../providers/favorites_provider.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 import '../widgets/cookbox_logo.dart';
 import '../widgets/state_views.dart';
 
@@ -136,9 +137,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             draftSelection.remove(category);
                           }
                         }),
-                        selectedColor: const Color(0xFFFFE4D7),
+                        selectedColor: AppColors.chipSelected,
                         checkmarkColor: AppColors.primary,
-                        labelStyle: const TextStyle(fontSize: 12),
+                        labelStyle: AppTextStyles.bodySmall,
                         side: const BorderSide(color: AppColors.border),
                       ),
                   ],

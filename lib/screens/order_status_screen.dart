@@ -128,7 +128,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                           index < review.rating
                               ? Icons.star_rounded
                               : Icons.star_outline_rounded,
-                          color: const Color(0xFFFFB800),
+                          color: AppColors.star,
                           size: 20,
                         );
                       }),
@@ -149,7 +149,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7F8FA),
+                    color: AppColors.cardBackground,
                     borderRadius: BorderRadius.circular(AppSpacing.compactRadius),
                     border: Border.all(color: AppColors.border),
                   ),
@@ -452,8 +452,8 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                           Container(
                             width: 36,
                             height: 36,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F8),
+                            decoration: const BoxDecoration(
+                              color: AppColors.fieldFill,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -528,7 +528,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
             decoration: BoxDecoration(
-              color: const Color(0xFFE6E8F0),
+              color: AppColors.badgeBackground,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -612,7 +612,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                   vertical: 3,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFDEEE8),
+                  color: AppColors.softAccent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -763,7 +763,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                     starIdx < (order.review?.rating ?? 0)
                         ? Icons.star_rounded
                         : Icons.star_outline_rounded,
-                    color: const Color(0xFFFFB800),
+                    color: AppColors.star,
                     size: 16,
                   );
                 }),
@@ -852,7 +852,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
       height: 32,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFFFDEEE8),
+          backgroundColor: AppColors.softAccent,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -889,7 +889,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
       height: 32,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFFEFF1F7),
+          backgroundColor: AppColors.neutralLight,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
