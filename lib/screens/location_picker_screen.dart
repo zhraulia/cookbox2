@@ -7,7 +7,6 @@ import '../data/location_service.dart';
 import '../models/delivery_location.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
 import '../widgets/state_views.dart';
 
 /// Screen untuk memilih lokasi pengantaran menggunakan OpenStreetMap dan geolocator/Nominatim.
@@ -345,7 +344,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                                                 item.address,
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: AppTextStyles.body,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge,
                                               ),
                                               onTap: () =>
                                                   _onSelectSearchResult(item),
@@ -413,7 +414,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                                   _isFetchingAddress
                                       ? 'Mencari alamat...'
                                       : _currentAddress,
-                                  style: AppTextStyles.body,
+                                  style: Theme.of(context).textTheme.bodyLarge,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),

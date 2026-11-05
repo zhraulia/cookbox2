@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../models/delivery_location.dart';
 import '../models/item.dart';
 import '../models/order.dart';
 import '../screens/cart_checkout_screen.dart';
 import '../screens/detail_menu_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/location_picker_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/not_found_screen.dart';
 import '../screens/order_confirmation_screen.dart';
@@ -26,6 +28,8 @@ class AppRoutes {
   // Route baru untuk checkout dan konfirmasi pesanan.
   static const String checkout = '/checkout';
   static const String orderConfirmation = '/order-confirmation';
+  // Route Peta Pemilihan Lokasi Pengantaran (Modul 2)
+  static const String locationPicker = '/location-picker';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -80,14 +84,21 @@ class AppRoutes {
       case promoForm:
         final args = settings.arguments;
         if (args is Umkm) {
-          // <PromoPreference> = tipe data yang DIKEMBALIKAN layar ini saat pop.
-          // Harus sama dengan tipe di pushNamed<PromoPreference>.
           return MaterialPageRoute<PromoPreference>(
             builder: (_) => PromoPreferenceScreen(umkm: args),
             settings: settings,
           );
         }
         return null;
+
+      // Route Peta Pemilihan Lokasi Pengantaran
+      case locationPicker:
+        final args = settings.arguments;
+        final initialLocation = args is DeliveryLocation ? args : null;
+        return MaterialPageRoute<DeliveryLocation>(
+          builder: (_) => LocationPickerScreen(initialLocation: initialLocation),
+          settings: settings,
+        );
 
       default:
         return null; // route tidak terdaftar -> halaman 404
