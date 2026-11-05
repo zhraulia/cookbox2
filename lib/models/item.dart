@@ -9,6 +9,7 @@ class Item {
   final String category;
   final String? imageUrl;
   final int? price;
+  final double rating;
   final List<String> ingredients;
   final String? cookingDuration;
   final List<String> recipeSteps;
@@ -22,6 +23,7 @@ class Item {
     required this.category,
     this.imageUrl,
     this.price,
+    this.rating = 4.9,
     this.ingredients = const [],
     this.cookingDuration,
     this.recipeSteps = const [],
