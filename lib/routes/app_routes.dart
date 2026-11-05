@@ -5,7 +5,9 @@ import '../models/order.dart';
 import '../screens/cart_checkout_screen.dart';
 import '../screens/detail_menu_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/favorites_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/menu_catalog_screen.dart';
 import '../screens/not_found_screen.dart';
 import '../screens/order_confirmation_screen.dart';
 import '../models/umkm.dart';
@@ -28,6 +30,8 @@ class AppRoutes {
   static const String umkmDetail = '/umkm-detail';
   static const String promoForm = '/promo-form';
   static const String home = '/home';
+  static const String menuCatalog = '/menu-catalog';
+  static const String favorites = '/favorites';
   static const String detailMenu = '/detail-menu';
   // Route baru untuk checkout dan konfirmasi pesanan.
   static const String checkout = '/checkout';
@@ -49,6 +53,16 @@ class AppRoutes {
       case home:
         return MaterialPageRoute<void>(
           builder: (_) => const HomeScreen(),
+          settings: settings,
+        );
+      case menuCatalog:
+        return MaterialPageRoute<void>(
+          builder: (_) => const MenuCatalogScreen(),
+          settings: settings,
+        );
+      case favorites:
+        return MaterialPageRoute<void>(
+          builder: (_) => const FavoritesScreen(),
           settings: settings,
         );
       case detailMenu:
@@ -115,7 +129,7 @@ class AppRoutes {
           );
         }
         return null;
-        
+
       // ==========================================
       // Tambahan Rute untuk Modul 5 (Pusat Bantuan)
       // ==========================================
