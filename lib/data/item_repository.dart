@@ -13,6 +13,7 @@ class ItemRepository {
       category: 'Paket Masak',
       imageUrl: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85',
       price: 18000,
+      rating: 4.9,
       ingredients: ['Ayam', 'Cabai rawit', 'Bawang putih', 'Nasi'],
       cookingDuration: '25 menit',
       recipeSteps: [
@@ -30,6 +31,7 @@ class ItemRepository {
       category: 'Segar',
       imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85',
       price: 8500,
+      rating: 4.7,
       ingredients: ['Kangkung', 'Bumbu terasi', 'Bawang merah', 'Cabai'],
       cookingDuration: '18 menit',
       recipeSteps: [
@@ -47,6 +49,7 @@ class ItemRepository {
       category: 'Lauk Instan',
       imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=85',
       price: 12000,
+      rating: 4.8,
       ingredients: ['Telur', 'Bakso sapi', 'Wortel', 'Daun bawang'],
       cookingDuration: '30 menit',
       recipeSteps: [
@@ -64,6 +67,7 @@ class ItemRepository {
       category: 'Hemat Kos',
       imageUrl: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85',
       price: 9500,
+      rating: 4.6,
       ingredients: ['Tempe', 'Kecap manis', 'Bawang merah', 'Cabai'],
       cookingDuration: '20 menit',
       recipeSteps: [
@@ -73,6 +77,9 @@ class ItemRepository {
       ],
     ),
   ];
+
+  /// Mengambil daftar item dummy secara sinkron untuk modul lain.
+  static List<Item> get sampleItems => _items;
 
   /// Mengambil daftar item.
   Future<List<Item>> fetchItems() async {

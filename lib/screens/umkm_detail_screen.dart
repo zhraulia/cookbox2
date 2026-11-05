@@ -7,6 +7,7 @@ import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/state_views.dart';
+import '../utils/error_message.dart';
 
 /// Status tampilan bagian menu: sedang memuat, berhasil, atau gagal.
 enum _ViewStatus { loading, success, error }
@@ -61,7 +62,7 @@ class _UmkmDetailScreenState extends State<UmkmDetailScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _errorMessage = errorMessageOf(e);
         _status = _ViewStatus.error;
       });
     }

@@ -5,9 +5,11 @@ import '../models/cart_item.dart';
 import '../models/delivery_location.dart';
 import '../models/order.dart';
 import '../providers/cart_provider.dart';
+import '../providers/order_provider.dart';
 import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../utils/formatters.dart';
 import '../widgets/state_views.dart';
 
 // Opsi pengantaran dan biaya pengantaran default sesuai modul.
@@ -114,6 +116,8 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
             : null,
       );
 
+      // Simpan pesanan yang berhasil dibuat ke OrderProvider agar muncul di Pesanan Saya.
+      context.read<OrderProvider>().addOrder(order);
       context.read<CartProvider>().clear();
       Navigator.pushReplacementNamed(
         context,
@@ -223,7 +227,7 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
                           color: AppColors.surface,
                         ),
                       )
-                    : Text('Konfirmasi Pesanan (${_formatRupiah(total)})'),
+                    : Text('Konfirmasi Pesanan (${AppFormatters.rupiah(total)})'),
               ),
             ),
     );
@@ -383,17 +387,17 @@ class _PaymentSummarySection extends StatelessWidget {
           const SizedBox(height: AppSpacing.section),
           _SummaryRow(
             label: 'Subtotal Paket',
-            value: _formatRupiah(subtotal),
+            value: AppFormatters.rupiah(subtotal),
           ),
           const SizedBox(height: AppSpacing.field),
           _SummaryRow(
             label: 'Ongkos Kirim',
-            value: _formatRupiah(deliveryFee),
+            value: AppFormatters.rupiah(deliveryFee),
           ),
           const Divider(height: AppSpacing.section),
           _SummaryRow(
             label: 'Total Pembayaran',
-            value: _formatRupiah(total),
+            value: AppFormatters.rupiah(total),
             isTotal: true,
           ),
         ],
@@ -736,13 +740,4 @@ class _CartImageFallback extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatRupiah(int amount) {
-  final digits = amount.toString();
-  final grouped = digits.replaceAllMapped(
-    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-    (match) => '${match[1]}.',
-  );
-  return 'Rp $grouped';
 }

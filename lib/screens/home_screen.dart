@@ -6,6 +6,7 @@ import '../data/item_repository.dart';
 import '../models/item.dart';
 import '../providers/favorites_provider.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 import '../widgets/cookbox_logo.dart';
 import '../widgets/state_views.dart';
 
@@ -36,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Item> _items = [];
   String _errorMessage = '';
   Set<String> _selectedCategories = {};
-  bool _showFavoritesOnly = false;
 
   List<Item> get _filteredItems {
     final query = _searchController.text.trim().toLowerCase();
@@ -51,10 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedCategories.any(
             (category) => category.toLowerCase() == item.category.toLowerCase(),
           );
-      final matchesFavorite =
-          !_showFavoritesOnly ||
-          context.read<FavoritesProvider>().isFavorite(item.id);
-      return matchesQuery && matchesCategory && matchesFavorite;
+      return matchesQuery && matchesCategory;
     }).toList();
   }
 
@@ -136,9 +133,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             draftSelection.remove(category);
                           }
                         }),
-                        selectedColor: const Color(0xFFFFE4D7),
+                        selectedColor: AppColors.chipSelected,
                         checkmarkColor: AppColors.primary,
-                        labelStyle: const TextStyle(fontSize: 12),
+                        labelStyle: AppTextStyles.bodySmall,
                         side: const BorderSide(color: AppColors.border),
                       ),
                   ],
@@ -194,8 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final items = _filteredItems;
     if (items.isEmpty) {
       if (_searchController.text.trim().isNotEmpty ||
-          _selectedCategories.isNotEmpty ||
-          _showFavoritesOnly) {
+          _selectedCategories.isNotEmpty) {
         return const EmptyView(
           message: 'Menu tidak ditemukan',
           icon: Icons.search_off_rounded,
@@ -244,9 +240,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
                           _HomeHeader(
-                            showFavorites: _showFavoritesOnly,
-                            onToggleFavorites: () => setState(
-                              () => _showFavoritesOnly = !_showFavoritesOnly,
+                            onOpenFavorites: () => Navigator.pushNamed(
+                              context,
+                              AppRoutes.favorites,
                             ),
                           ),
                           const SizedBox(height: 14),
@@ -270,8 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 10),
                           _buildContent(),
-                          if (!_showFavoritesOnly &&
-                              _searchController.text.trim().isEmpty &&
+                          if (_searchController.text.trim().isEmpty &&
                               _selectedCategories.isEmpty) ...[
                             const SizedBox(height: 20),
                             const _SectionHeading(
@@ -434,13 +429,9 @@ class _ItemCard extends StatelessWidget {
 }
 
 class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({
-    required this.showFavorites,
-    required this.onToggleFavorites,
-  });
+  const _HomeHeader({required this.onOpenFavorites});
 
-  final bool showFavorites;
-  final VoidCallback onToggleFavorites;
+  final VoidCallback onOpenFavorites;
 
   @override
   Widget build(BuildContext context) {
@@ -450,10 +441,10 @@ class _HomeHeader extends StatelessWidget {
         const CookBoxLogo(compact: true),
         const Spacer(),
         _HeaderAction(
-          icon: showFavorites
-              ? Icons.favorite_rounded
-              : Icons.favorite_border_rounded,
-          onTap: onToggleFavorites,
+          key: const ValueKey('favorites-page-link'),
+          icon: Icons.favorite_border_rounded,
+          tooltip: 'Menu favorit Anda',
+          onTap: onOpenFavorites,
         ),
         const SizedBox(width: 8),
         // Aksi keranjang membuka alur checkout.
@@ -852,22 +843,25 @@ class _HomeBottomBar extends StatelessWidget {
               label: 'Beranda',
               selected: true,
             ),
-            const _NavigationItem(
+            _NavigationItem(
               icon: Icons.restaurant_menu_rounded,
               label: 'Menu',
+              onTap: () => Navigator.pushNamed(context, AppRoutes.menuCatalog),
             ),
-            const _NavigationItem(
+            _NavigationItem(
               icon: Icons.receipt_long_outlined,
               label: 'Pesanan',
+              onTap: () => Navigator.pushNamed(context, AppRoutes.orders),
             ),
             _NavigationItem(
               icon: Icons.storefront_outlined,
               label: 'UMKM',
               onTap: () => Navigator.pushNamed(context, AppRoutes.umkmList),
             ),
-            const _NavigationItem(
+            _NavigationItem(
               icon: Icons.person_outline_rounded,
               label: 'Bantuan',
+              onTap: () => Navigator.pushNamed(context, AppRoutes.support),
             ),
           ],
         ),
@@ -915,24 +909,34 @@ class _NavigationItem extends StatelessWidget {
 }
 
 class _HeaderAction extends StatelessWidget {
-  const _HeaderAction({required this.icon, this.onTap});
+  const _HeaderAction({
+    super.key,
+    required this.icon,
+    this.tooltip,
+    this.onTap,
+  });
 
   final IconData icon;
+  final String? tooltip;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          border: Border.all(color: AppColors.border),
+      child: Semantics(
+        button: true,
+        label: tooltip,
+        child: Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Icon(icon, size: 15, color: AppColors.muted),
         ),
-        child: Icon(icon, size: 15, color: AppColors.muted),
       ),
     );
   }

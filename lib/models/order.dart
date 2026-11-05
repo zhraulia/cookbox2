@@ -1,6 +1,18 @@
+import '../utils/formatters.dart';
 import 'cart_item.dart';
+import 'review.dart';
 
-// Snapshot pesanan yang diteruskan ke halaman konfirmasi.
+/// Status alur pesanan: Dikemas, Dikirim, atau Selesai.
+enum OrderStatus {
+  dikemas('Dikemas'),
+  dikirim('Dikirim'),
+  selesai('Selesai');
+
+  final String label;
+  const OrderStatus(this.label);
+}
+
+// Snapshot pesanan yang diteruskan ke halaman konfirmasi dan status pesanan.
 class Order {
   final String id;
   final List<CartItem> items;
@@ -11,6 +23,8 @@ class Order {
   final int deliveryFee;
   final int total;
   final DateTime createdAt;
+  final OrderStatus status;
+  final Review? review;
   // Koordinat GPS lokasi pengantaran (nullable)
   final double? deliveryLatitude;
   final double? deliveryLongitude;
@@ -25,20 +39,18 @@ class Order {
     required this.deliveryFee,
     required this.total,
     DateTime? createdAt,
+    this.status = OrderStatus.dikemas,
+    this.review,
     this.deliveryLatitude,
     this.deliveryLongitude,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
        items = List.unmodifiable(items),
        createdAt = createdAt ?? DateTime.now();
 
-  String get totalLabel {
-    final digits = total.toString();
-    final grouped = digits.replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => '${match[1]}.',
-    );
-    return 'Rp $grouped';
-  }
+  /// Memeriksa apakah pesanan ini sudah diberi ulasan.
+  bool get isReviewed => review != null;
+
+  String get totalLabel => AppFormatters.rupiah(total);
 
   /// Membuat salinan Order dengan atribut yang diperbarui.
   Order copyWith({
@@ -51,6 +63,9 @@ class Order {
     int? deliveryFee,
     int? total,
     DateTime? createdAt,
+    OrderStatus? status,
+    Review? review,
+    bool removeReview = false,
     double? deliveryLatitude,
     double? deliveryLongitude,
   }) {
@@ -64,6 +79,8 @@ class Order {
       deliveryFee: deliveryFee ?? this.deliveryFee,
       total: total ?? this.total,
       createdAt: createdAt ?? this.createdAt,
+      status: status ?? this.status,
+      review: removeReview ? null : (review ?? this.review),
       deliveryLatitude: deliveryLatitude ?? this.deliveryLatitude,
       deliveryLongitude: deliveryLongitude ?? this.deliveryLongitude,
     );

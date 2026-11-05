@@ -6,15 +6,23 @@ import '../models/order.dart';
 import '../screens/cart_checkout_screen.dart';
 import '../screens/detail_menu_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/favorites_screen.dart';
 import '../screens/location_picker_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/menu_catalog_screen.dart';
 import '../screens/not_found_screen.dart';
 import '../screens/order_confirmation_screen.dart';
 import '../models/umkm.dart';
 import '../screens/umkm_detail_screen.dart';
 import '../screens/umkm_list_screen.dart';
 import '../models/promo_preference.dart';
+import '../models/review.dart';
+import '../screens/order_status_screen.dart';
 import '../screens/promo_preference_screen.dart';
+import '../screens/review_screen.dart';
+// Import untuk Modul 5 (Pusat Bantuan & Pengaduan)
+import '../screens/support_screen.dart';
+import '../screens/add_report_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -24,10 +32,18 @@ class AppRoutes {
   static const String umkmDetail = '/umkm-detail';
   static const String promoForm = '/promo-form';
   static const String home = '/home';
+  static const String menuCatalog = '/menu-catalog';
+  static const String favorites = '/favorites';
   static const String detailMenu = '/detail-menu';
   // Route baru untuk checkout dan konfirmasi pesanan.
   static const String checkout = '/checkout';
   static const String orderConfirmation = '/order-confirmation';
+  // Route Modul 3: Status Pesanan dan Beri Ulasan
+  static const String orders = '/orders';
+  static const String review = '/review';
+  // Route Modul 5: Pusat Bantuan
+  static const String support = '/support';
+  static const String addReport = '/add-report';
   // Route Peta Pemilihan Lokasi Pengantaran (Modul 2)
   static const String locationPicker = '/location-picker';
 
@@ -41,6 +57,16 @@ class AppRoutes {
       case home:
         return MaterialPageRoute<void>(
           builder: (_) => const HomeScreen(),
+          settings: settings,
+        );
+      case menuCatalog:
+        return MaterialPageRoute<void>(
+          builder: (_) => const MenuCatalogScreen(),
+          settings: settings,
+        );
+      case favorites:
+        return MaterialPageRoute<void>(
+          builder: (_) => const FavoritesScreen(),
           settings: settings,
         );
       case detailMenu:
@@ -90,6 +116,38 @@ class AppRoutes {
           );
         }
         return null;
+      case orders:
+        return MaterialPageRoute<void>(
+          builder: (_) => const OrderStatusScreen(),
+          settings: settings,
+        );
+      case review:
+        final args = settings.arguments;
+        if (args is Order) {
+          // Mengembalikan hasil objek Review saat Navigator.pop(context, review)
+          return MaterialPageRoute<Review>(
+            builder: (_) => ReviewScreen(order: args),
+            settings: settings,
+          );
+        }
+        return null;
+
+      // ==========================================
+      // Tambahan Rute untuk Modul 5 (Pusat Bantuan)
+      // ==========================================
+      case support:
+        return MaterialPageRoute<void>(
+          builder: (_) => const SupportScreen(),
+          settings: settings,
+        );
+      case addReport:
+        final args = settings.arguments;
+        // Jika dipanggil tanpa argumen, default-nya kategori 'Pesanan'
+        final category = args is String ? args : 'Pesanan';
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => AddReportScreen(initialCategory: category),
+          settings: settings,
+        );
 
       // Route Peta Pemilihan Lokasi Pengantaran
       case locationPicker:

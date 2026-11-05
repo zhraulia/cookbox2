@@ -26,18 +26,20 @@ void main() {
     await tester.pump();
     expect(find.byTooltip('Hapus dari favorit'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('favorites-toggle')));
-    await tester.pump();
-    expect(find.text('Menu Favorit'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('favorites-page-link')));
+    await tester.pumpAndSettle();
+    expect(find.text('Menu Favorit Anda'), findsOneWidget);
     expect(find.text('Ayam Geprek Sambal Korek'), findsOneWidget);
 
-    await tester.tap(find.text('Ayam Geprek Sambal Korek'));
+    await tester.tap(find.byKey(const ValueKey('favorite-menu-1')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('detail-favorite')));
     await tester.pump();
     await tester.tap(find.byKey(const ValueKey('detail-back')));
     await tester.pumpAndSettle();
 
+    expect(find.text('Menu Favorit Anda'), findsOneWidget);
+    expect(find.text('Ayam Geprek Sambal Korek'), findsNothing);
     expect(
       find.text(
         'Belum ada menu favorit. Tekan ikon hati untuk menyimpan menu.',

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/login_provider.dart';
+import 'providers/order_provider.dart';
 import 'routes/app_routes.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_text_styles.dart';
@@ -23,6 +24,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
         // Provider keranjang untuk state lintas-screen.
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        // Provider pesanan untuk state status pesanan dan ulasan.
+        ChangeNotifierProvider.value(value: OrderProvider.instance),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
