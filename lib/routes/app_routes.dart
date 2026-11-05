@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../models/delivery_location.dart';
 import '../models/item.dart';
 import '../models/order.dart';
 import '../screens/cart_checkout_screen.dart';
 import '../screens/detail_menu_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/favorites_screen.dart';
+import '../screens/location_picker_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/menu_catalog_screen.dart';
 import '../screens/not_found_screen.dart';
@@ -42,6 +44,8 @@ class AppRoutes {
   // Route Modul 5: Pusat Bantuan
   static const String support = '/support';
   static const String addReport = '/add-report';
+  // Route Peta Pemilihan Lokasi Pengantaran (Modul 2)
+  static const String locationPicker = '/location-picker';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -106,8 +110,6 @@ class AppRoutes {
       case promoForm:
         final args = settings.arguments;
         if (args is Umkm) {
-          // <PromoPreference> = tipe data yang DIKEMBALIKAN layar ini saat pop.
-          // Harus sama dengan tipe di pushNamed<PromoPreference>.
           return MaterialPageRoute<PromoPreference>(
             builder: (_) => PromoPreferenceScreen(umkm: args),
             settings: settings,
@@ -144,6 +146,15 @@ class AppRoutes {
         final category = args is String ? args : 'Pesanan';
         return MaterialPageRoute<dynamic>(
           builder: (_) => AddReportScreen(initialCategory: category),
+          settings: settings,
+        );
+
+      // Route Peta Pemilihan Lokasi Pengantaran
+      case locationPicker:
+        final args = settings.arguments;
+        final initialLocation = args is DeliveryLocation ? args : null;
+        return MaterialPageRoute<DeliveryLocation>(
+          builder: (_) => LocationPickerScreen(initialLocation: initialLocation),
           settings: settings,
         );
 

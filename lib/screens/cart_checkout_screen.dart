@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/cart_item.dart';
+import '../models/delivery_location.dart';
 import '../models/order.dart';
 import '../providers/cart_provider.dart';
 import '../providers/order_provider.dart';
@@ -11,8 +12,7 @@ import '../theme/app_spacing.dart';
 import '../utils/formatters.dart';
 import '../widgets/state_views.dart';
 
-// Data alamat dan biaya pengantaran masih dummy sesuai lingkup modul.
-const String _deliveryAddress = 'Kost Sakura Indah, Jl. Kenanga No. 12';
+// Opsi pengantaran dan biaya pengantaran default sesuai modul.
 const String _deliveryOption = 'Diantar ke Alamat';
 const String _pickupOption = 'Ambil ke UMKM';
 const int _deliveryFee = 5000;
@@ -28,6 +28,9 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
   String _deliveryMethod = _deliveryOption;
   String? _selectedPayment;
   bool _isSubmitting = false;
+
+  // State lokasi pengantaran yang dipilih via peta
+  DeliveryLocation? _deliveryLocation;
 
   static const _paymentOptions = [
     (
@@ -47,7 +50,31 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
     ),
   ];
 
+  /// Membuka layar peta pemilihan lokasi pengantaran.
+  Future<void> _openLocationPicker() async {
+    final result = await Navigator.pushNamed<DeliveryLocation>(
+      context,
+      AppRoutes.locationPicker,
+      arguments: _deliveryLocation,
+    );
+
+    if (!mounted) return;
+    if (result != null) {
+      setState(() => _deliveryLocation = result);
+    }
+  }
+
   Future<void> _confirmOrder(CartProvider cartProvider) async {
+    // Validasi: lokasi pengantaran wajib dipilih jika metode pengantaran 'Diantar'
+    if (_deliveryMethod == _deliveryOption && _deliveryLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tentukan lokasi pengantaran terlebih dahulu'),
+        ),
+      );
+      return;
+    }
+
     final paymentMethod = _selectedPayment;
     if (paymentMethod == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,16 +97,23 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
       await Future<void>.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
 
+      // Membuat pesanan dengan data lokasi dari _deliveryLocation
       final order = Order(
         items: items,
         deliveryMethod: _deliveryMethod,
         deliveryAddress: _deliveryMethod == _deliveryOption
-            ? _deliveryAddress
+            ? _deliveryLocation!.address
             : 'Ambil di UMKM',
         paymentMethod: paymentMethod,
         subtotal: subtotal,
         deliveryFee: deliveryFee,
         total: total,
+        deliveryLatitude: _deliveryMethod == _deliveryOption
+            ? _deliveryLocation!.latitude
+            : null,
+        deliveryLongitude: _deliveryMethod == _deliveryOption
+            ? _deliveryLocation!.longitude
+            : null,
       );
 
       // Simpan pesanan yang berhasil dibuat ke OrderProvider agar muncul di Pesanan Saya.
@@ -126,64 +160,36 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(AppSpacing.page),
                 children: [
-                  _SectionHeading(
-                    title:
-                        'Rincian Paket Masak (${cartProvider.items.length} Menu)',
+                  _CartItemsSection(
+                    items: cartProvider.items,
+                    onRemove: (itemId) =>
+                        context.read<CartProvider>().removeItem(itemId),
+                    onDecrease: (itemId) =>
+                        context.read<CartProvider>().decreaseQuantity(itemId),
+                    onIncrease: (itemId) =>
+                        context.read<CartProvider>().increaseQuantity(itemId),
                   ),
-                  const SizedBox(height: AppSpacing.field),
-                  for (final cartItem in cartProvider.items)
-                    _CartItemCard(
-                      cartItem: cartItem,
-                      onRemove: () => context.read<CartProvider>().removeItem(
-                        cartItem.item.id,
-                      ),
-                      onDecrease: () => context
-                          .read<CartProvider>()
-                          .decreaseQuantity(cartItem.item.id),
-                      onIncrease: () => context
-                          .read<CartProvider>()
-                          .increaseQuantity(cartItem.item.id),
-                    ),
                   const SizedBox(height: AppSpacing.section),
-                  const _SectionHeading(title: 'Pilihan Pengantaran'),
-                  const SizedBox(height: AppSpacing.field),
-                  SegmentedButton<String>(
-                    segments: const [
-                      ButtonSegment(
-                        value: _deliveryOption,
-                        label: Text('Diantar'),
-                        icon: Icon(Icons.delivery_dining_outlined),
-                      ),
-                      ButtonSegment(
-                        value: _pickupOption,
-                        label: Text('Ambil Sendiri'),
-                        icon: Icon(Icons.storefront_outlined),
-                      ),
-                    ],
-                    selected: {_deliveryMethod},
-                    onSelectionChanged: (selection) {
-                      setState(() => _deliveryMethod = selection.first);
+                  _DeliveryMethodSection(
+                    selectedMethod: _deliveryMethod,
+                    onMethodChanged: (method) {
+                      setState(() => _deliveryMethod = method);
+                    },
+                    addressText: _deliveryLocation?.address ??
+                        'Belum ada lokasi, ketuk Ubah Alamat',
+                    onChangeAddress: _openLocationPicker,
+                    merchantNames: _merchantNames(cartProvider),
+                  ),
+                  const SizedBox(height: AppSpacing.section),
+                  _PaymentMethodSection(
+                    paymentOptions: _paymentOptions,
+                    selectedPayment: _selectedPayment,
+                    onSelectPayment: (method) {
+                      setState(() => _selectedPayment = method);
                     },
                   ),
-                  const SizedBox(height: AppSpacing.field),
-                  if (_deliveryMethod == _deliveryOption)
-                    _AddressCard(onChangeAddress: _showAddressPlaceholder)
-                  else
-                    _PickupCard(merchantNames: _merchantNames(cartProvider)),
                   const SizedBox(height: AppSpacing.section),
-                  const _SectionHeading(title: 'Metode Pembayaran'),
-                  const SizedBox(height: AppSpacing.field),
-                  for (final option in _paymentOptions)
-                    _PaymentOption(
-                      name: option.name,
-                      description: option.description,
-                      icon: option.icon,
-                      selected: _selectedPayment == option.name,
-                      onTap: () =>
-                          setState(() => _selectedPayment = option.name),
-                    ),
-                  const SizedBox(height: AppSpacing.section),
-                  _PaymentSummary(
+                  _PaymentSummarySection(
                     subtotal: cartProvider.subtotalPrice,
                     deliveryFee: deliveryFee,
                     total: total,
@@ -231,10 +237,171 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
       .map((cartItem) => cartItem.item.merchantName)
       .toSet()
       .toList();
+}
 
-  void _showAddressPlaceholder() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Fitur ubah lokasi GPS akan segera hadir')),
+// ==========================================
+// SECTIONS & COMPONENTS
+// ==========================================
+
+/// Section daftar item di keranjang beserta kontrol jumlah dan tombol hapus.
+class _CartItemsSection extends StatelessWidget {
+  const _CartItemsSection({
+    required this.items,
+    required this.onRemove,
+    required this.onDecrease,
+    required this.onIncrease,
+  });
+
+  final List<CartItem> items;
+  final ValueChanged<String> onRemove;
+  final ValueChanged<String> onDecrease;
+  final ValueChanged<String> onIncrease;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeading(
+          title: 'Rincian Paket Masak (${items.length} Menu)',
+        ),
+        const SizedBox(height: AppSpacing.field),
+        for (final cartItem in items)
+          _CartItemCard(
+            cartItem: cartItem,
+            onRemove: () => onRemove(cartItem.item.id),
+            onDecrease: () => onDecrease(cartItem.item.id),
+            onIncrease: () => onIncrease(cartItem.item.id),
+          ),
+      ],
+    );
+  }
+}
+
+/// Section pilihan pengantaran (Diantar / Ambil Sendiri) dan kartu alamat/pickup.
+class _DeliveryMethodSection extends StatelessWidget {
+  const _DeliveryMethodSection({
+    required this.selectedMethod,
+    required this.onMethodChanged,
+    required this.addressText,
+    required this.onChangeAddress,
+    required this.merchantNames,
+  });
+
+  final String selectedMethod;
+  final ValueChanged<String> onMethodChanged;
+  final String addressText;
+  final VoidCallback onChangeAddress;
+  final List<String> merchantNames;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionHeading(title: 'Pilihan Pengantaran'),
+        const SizedBox(height: AppSpacing.field),
+        SegmentedButton<String>(
+          segments: const [
+            ButtonSegment(
+              value: _deliveryOption,
+              label: Text('Diantar'),
+              icon: Icon(Icons.delivery_dining_outlined),
+            ),
+            ButtonSegment(
+              value: _pickupOption,
+              label: Text('Ambil Sendiri'),
+              icon: Icon(Icons.storefront_outlined),
+            ),
+          ],
+          selected: {selectedMethod},
+          onSelectionChanged: (selection) => onMethodChanged(selection.first),
+        ),
+        const SizedBox(height: AppSpacing.field),
+        if (selectedMethod == _deliveryOption)
+          _AddressCard(
+            addressText: addressText,
+            onChangeAddress: onChangeAddress,
+          )
+        else
+          _PickupCard(merchantNames: merchantNames),
+      ],
+    );
+  }
+}
+
+/// Section pilihan metode pembayaran menggunakan kartu reusable.
+class _PaymentMethodSection extends StatelessWidget {
+  const _PaymentMethodSection({
+    required this.paymentOptions,
+    required this.selectedPayment,
+    required this.onSelectPayment,
+  });
+
+  final List<({String name, String description, IconData icon})> paymentOptions;
+  final String? selectedPayment;
+  final ValueChanged<String> onSelectPayment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionHeading(title: 'Metode Pembayaran'),
+        const SizedBox(height: AppSpacing.field),
+        for (final option in paymentOptions)
+          _PaymentOptionCard(
+            icon: option.icon,
+            title: option.name,
+            subtitle: option.description,
+            isSelected: selectedPayment == option.name,
+            onTap: () => onSelectPayment(option.name),
+          ),
+      ],
+    );
+  }
+}
+
+/// Section ringkasan rincian pembayaran (subtotal, ongkir, total).
+class _PaymentSummarySection extends StatelessWidget {
+  const _PaymentSummarySection({
+    required this.subtotal,
+    required this.deliveryFee,
+    required this.total,
+  });
+
+  final int subtotal;
+  final int deliveryFee;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    return _InfoCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Ringkasan Pembayaran',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: AppSpacing.section),
+          _SummaryRow(
+            label: 'Subtotal Paket',
+            value: AppFormatters.rupiah(subtotal),
+          ),
+          const SizedBox(height: AppSpacing.field),
+          _SummaryRow(
+            label: 'Ongkos Kirim',
+            value: AppFormatters.rupiah(deliveryFee),
+          ),
+          const Divider(height: AppSpacing.section),
+          _SummaryRow(
+            label: 'Total Pembayaran',
+            value: AppFormatters.rupiah(total),
+            isTotal: true,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -388,8 +555,12 @@ class _QuantityControl extends StatelessWidget {
 }
 
 class _AddressCard extends StatelessWidget {
-  const _AddressCard({required this.onChangeAddress});
+  const _AddressCard({
+    required this.addressText,
+    required this.onChangeAddress,
+  });
 
+  final String addressText;
   final VoidCallback onChangeAddress;
 
   @override
@@ -399,7 +570,7 @@ class _AddressCard extends StatelessWidget {
         children: [
           const Icon(Icons.location_on_outlined, color: AppColors.primary),
           const SizedBox(width: AppSpacing.field),
-          const Expanded(child: Text(_deliveryAddress)),
+          Expanded(child: Text(addressText)),
           TextButton(
             onPressed: onChangeAddress,
             child: const Text('Ubah Alamat'),
@@ -445,19 +616,19 @@ class _PickupCard extends StatelessWidget {
   }
 }
 
-class _PaymentOption extends StatelessWidget {
-  const _PaymentOption({
-    required this.name,
-    required this.description,
+class _PaymentOptionCard extends StatelessWidget {
+  const _PaymentOptionCard({
     required this.icon,
-    required this.selected,
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
     required this.onTap,
   });
 
-  final String name;
-  final String description;
   final IconData icon;
-  final bool selected;
+  final String title;
+  final String subtitle;
+  final bool isSelected;
   final VoidCallback onTap;
 
   @override
@@ -469,7 +640,7 @@ class _PaymentOption extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.radius),
         side: BorderSide(
-          color: selected ? AppColors.primary : AppColors.border,
+          color: isSelected ? AppColors.primary : AppColors.border,
         ),
       ),
       child: InkWell(
@@ -486,61 +657,24 @@ class _PaymentOption extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      title,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: AppSpacing.small),
                     Text(
-                      description,
+                      subtitle,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
               ),
               Icon(
-                selected ? Icons.check_circle : Icons.radio_button_unchecked,
-                color: selected ? AppColors.primary : AppColors.muted,
+                isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: isSelected ? AppColors.primary : AppColors.muted,
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PaymentSummary extends StatelessWidget {
-  const _PaymentSummary({
-    required this.subtotal,
-    required this.deliveryFee,
-    required this.total,
-  });
-
-  final int subtotal;
-  final int deliveryFee;
-  final int total;
-
-  @override
-  Widget build(BuildContext context) {
-    return _InfoCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Ringkasan Pembayaran',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: AppSpacing.section),
-          _SummaryRow(label: 'Subtotal Paket', value: AppFormatters.rupiah(subtotal)),
-          const SizedBox(height: AppSpacing.field),
-          _SummaryRow(label: 'Ongkos Kirim', value: AppFormatters.rupiah(deliveryFee)),
-          const Divider(height: AppSpacing.section),
-          _SummaryRow(
-            label: 'Total Pembayaran',
-            value: AppFormatters.rupiah(total),
-            isTotal: true,
-          ),
-        ],
       ),
     );
   }

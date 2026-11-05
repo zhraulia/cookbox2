@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Izin internet untuk peta OpenStreetMap dan pencarian lokasi Nominatim -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Izin lokasi untuk fitur geolocator (GPS) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:label="nama_project"
         android:name="${applicationName}"

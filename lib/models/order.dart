@@ -25,6 +25,9 @@ class Order {
   final DateTime createdAt;
   final OrderStatus status;
   final Review? review;
+  // Koordinat GPS lokasi pengantaran (nullable)
+  final double? deliveryLatitude;
+  final double? deliveryLongitude;
 
   Order({
     String? id,
@@ -38,6 +41,8 @@ class Order {
     DateTime? createdAt,
     this.status = OrderStatus.dikemas,
     this.review,
+    this.deliveryLatitude,
+    this.deliveryLongitude,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
        items = List.unmodifiable(items),
        createdAt = createdAt ?? DateTime.now();
@@ -61,6 +66,8 @@ class Order {
     OrderStatus? status,
     Review? review,
     bool removeReview = false,
+    double? deliveryLatitude,
+    double? deliveryLongitude,
   }) {
     return Order(
       id: id ?? this.id,
@@ -74,7 +81,8 @@ class Order {
       createdAt: createdAt ?? this.createdAt,
       status: status ?? this.status,
       review: removeReview ? null : (review ?? this.review),
+      deliveryLatitude: deliveryLatitude ?? this.deliveryLatitude,
+      deliveryLongitude: deliveryLongitude ?? this.deliveryLongitude,
     );
   }
 }
-
