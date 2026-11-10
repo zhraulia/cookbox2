@@ -10,6 +10,8 @@ class Umkm {
   final String? address;
   final String? phoneNumber;
   final String? imageUrl;
+  final double? latitude;
+  final double? longitude;
 
   /// Pilihan promo pengguna. null berarti pengguna belum mengikuti UMKM ini.
   final PromoPreference? promo;
@@ -23,6 +25,8 @@ class Umkm {
     this.address,
     this.phoneNumber,
     this.imageUrl,
+    this.latitude,
+    this.longitude,
     this.promo,
   });
 
@@ -43,6 +47,8 @@ class Umkm {
       address: address,
       phoneNumber: phoneNumber,
       imageUrl: imageUrl,
+      latitude: latitude,
+      longitude: longitude,
       promo: newPromo,
     );
   }

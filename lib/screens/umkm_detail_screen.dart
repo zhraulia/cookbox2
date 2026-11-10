@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../data/item_repository.dart';
+import '../data/user_location_service.dart';
 import '../models/item.dart';
 import '../models/umkm.dart';
 import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../utils/distance_formatter.dart';
 import '../widgets/state_views.dart';
 import '../utils/error_message.dart';
 
@@ -29,15 +31,41 @@ class UmkmDetailScreen extends StatefulWidget {
 
 class _UmkmDetailScreenState extends State<UmkmDetailScreen> {
   final ItemRepository _itemRepository = ItemRepository();
+  final UserLocationService _locationService = UserLocationService();
 
   List<Item> _menus = [];
   _ViewStatus _status = _ViewStatus.loading;
   String _errorMessage = '';
+  String? _distance;
 
   @override
   void initState() {
     super.initState();
     _loadMenus();
+    _loadDistance();
+  }
+
+  /// Memuat jarak UMKM dari lokasi pengguna jika koordinat tersedia.
+  Future<void> _loadDistance() async {
+    final lat = widget.umkm.latitude;
+    final lng = widget.umkm.longitude;
+    if (lat == null || lng == null) return;
+
+    try {
+      final position = await _locationService.getCurrentPosition();
+      if (!mounted) return;
+      final meters = _locationService.distanceInMeters(
+        position.latitude,
+        position.longitude,
+        lat,
+        lng,
+      );
+      setState(() {
+        _distance = '${formatDistance(meters)} dari lokasimu';
+      });
+    } catch (e) {
+      debugPrint('Gagal memuat jarak UMKM: $e');
+    }
   }
 
   Future<void> _loadMenus() async {
@@ -138,6 +166,13 @@ class _UmkmDetailScreenState extends State<UmkmDetailScreen> {
                   icon: Icons.phone_outlined,
                   text: umkm.phoneNumber ?? 'Nomor tidak tersedia',
                 ),
+                if (_distance != null) ...[
+                  const SizedBox(height: AppSpacing.field),
+                  _IconText(
+                    icon: Icons.near_me_outlined,
+                    text: _distance!,
+                  ),
+                ],
               ],
             ),
           ),
