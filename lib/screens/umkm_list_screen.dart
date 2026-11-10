@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
+import '../data/promo_repository.dart';
 import '../data/umkm_repository.dart';
+import '../data/user_location_service.dart';
 import '../models/promo_preference.dart';
 import '../models/umkm.dart';
 import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import '../widgets/state_views.dart';
+import '../utils/distance_formatter.dart';
 import '../utils/error_message.dart';
+import '../widgets/promo_notification_sheet.dart';
+import '../widgets/state_views.dart';
 
 /// Status tampilan layar: sedang memuat, berhasil, atau gagal.
 enum _ViewStatus { loading, success, error }
@@ -38,9 +43,13 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
   ];
 
   final UmkmRepository _repository = UmkmRepository();
+  final PromoRepository _promoRepository = PromoRepository();
+  final UserLocationService _locationService = UserLocationService();
   final TextEditingController _searchController = TextEditingController();
 
   List<Umkm> _umkmList = [];
+  Position? _userPosition;
+  int _matchingPromosCount = 0;
   _ViewStatus _status = _ViewStatus.loading;
   String _errorMessage = '';
   String _selectedCategory = 'Semua';
@@ -52,6 +61,7 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
   void initState() {
     super.initState();
     _loadUmkm();
+    _loadUserLocation();
   }
 
   @override
@@ -73,12 +83,57 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
         _umkmList = data;
         _status = _ViewStatus.success;
       });
+      _updateNotificationCount();
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _errorMessage = errorMessageOf(e);
         _status = _ViewStatus.error;
       });
+    }
+  }
+
+  /// Memuat lokasi terkini pengguna lewat GPS untuk perhitungan jarak.
+  Future<void> _loadUserLocation() async {
+    try {
+      final position = await _locationService.getCurrentPosition();
+      if (!mounted) return;
+      setState(() {
+        _userPosition = position;
+      });
+    } catch (e) {
+      debugPrint('Gagal memuat lokasi pengguna: $e');
+    }
+  }
+
+  /// Label jarak UMKM dari lokasi pengguna.
+  /// Mengembalikan null jika lokasi pengguna atau koordinat UMKM belum tersedia.
+  String? _distanceLabel(Umkm umkm) {
+    if (_userPosition == null ||
+        umkm.latitude == null ||
+        umkm.longitude == null) {
+      return null;
+    }
+    final meters = _locationService.distanceInMeters(
+      _userPosition!.latitude,
+      _userPosition!.longitude,
+      umkm.latitude!,
+      umkm.longitude!,
+    );
+    return formatDistance(meters);
+  }
+
+  /// Menghitung jumlah promo yang cocok dengan UMKM yang diikuti.
+  Future<void> _updateNotificationCount() async {
+    try {
+      final promos = await _promoRepository.fetchPromos();
+      if (!mounted) return;
+      final count = _promoRepository.findMatching(_umkmList, promos).length;
+      setState(() {
+        _matchingPromosCount = count;
+      });
+    } catch (e) {
+      debugPrint('Gagal memperbarui jumlah notifikasi promo: $e');
     }
   }
 
@@ -134,11 +189,41 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
 
     final updated = _repository.setPromo(umkm.id, result);
     _replaceInList(updated);
-    _showMessage(
-      wasFollowing
-          ? 'Pilihan promo ${updated.name} diperbarui'
-          : 'Kamu mengikuti ${updated.name}',
-    );
+
+    try {
+      final promos = await _promoRepository.fetchPromos();
+      final matching = _promoRepository.findMatching([updated], promos);
+      if (!mounted) return;
+      if (matching.isNotEmpty) {
+        final firstPromo = matching.first.promo;
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Promo cocok ditemukan: ${firstPromo.title}'),
+            action: SnackBarAction(
+              label: 'Lihat',
+              onPressed: () => showPromoNotificationSheet(context),
+            ),
+          ),
+        );
+      } else {
+        _showMessage(
+          wasFollowing
+              ? 'Pilihan promo ${updated.name} diperbarui'
+              : 'Kamu mengikuti ${updated.name}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Gagal memeriksa promo yang cocok: $e');
+      if (mounted) {
+        _showMessage(
+          wasFollowing
+              ? 'Pilihan promo ${updated.name} diperbarui'
+              : 'Kamu mengikuti ${updated.name}',
+        );
+      }
+    }
+    _updateNotificationCount();
   }
 
   /// Delete: berhenti mengikuti setelah pengguna mengonfirmasi.
@@ -167,6 +252,7 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
     final updated = _repository.clearPromo(umkm.id);
     _replaceInList(updated);
     _showMessage('Berhenti mengikuti ${updated.name}');
+    _updateNotificationCount();
   }
 
   void _openDetail(Umkm umkm) {
@@ -183,6 +269,23 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
           'UMKM Lokal',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Notifikasi Promo',
+            onPressed: () async {
+              await showPromoNotificationSheet(context);
+              if (mounted) {
+                _updateNotificationCount();
+              }
+            },
+            icon: Badge(
+              isLabelVisible: _matchingPromosCount > 0,
+              label: Text('$_matchingPromosCount'),
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.notifications_none_rounded),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -288,6 +391,7 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
         final umkm = umkmList[index];
         return _UmkmCard(
           umkm: umkm,
+          distance: _distanceLabel(umkm),
           onTap: () => _openDetail(umkm),
           onFollow: () => _openPromoForm(umkm),
           onEdit: () => _openPromoForm(umkm),
@@ -300,6 +404,7 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
 
 class _UmkmCard extends StatelessWidget {
   final Umkm umkm;
+  final String? distance;
   final VoidCallback onTap;
   final VoidCallback onFollow;
   final VoidCallback onEdit;
@@ -307,6 +412,7 @@ class _UmkmCard extends StatelessWidget {
 
   const _UmkmCard({
     required this.umkm,
+    this.distance,
     required this.onTap,
     required this.onFollow,
     required this.onEdit,
@@ -354,12 +460,48 @@ class _UmkmCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.small),
-              Text(
-                umkm.category,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  Text(
+                    umkm.category,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (distance != null) ...[
+                    const SizedBox(width: AppSpacing.small),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.small,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.neutralLight,
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.compactRadius,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.near_me_outlined,
+                            size: 14,
+                            color: AppColors.muted,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            distance!,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(height: AppSpacing.small),
               Text(umkm.description, style: textTheme.bodyMedium),
