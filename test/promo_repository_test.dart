@@ -58,5 +58,70 @@ void main() {
     );
     expect(repository.findMatching([umkm], promos), isEmpty);
   });
+
+  group('urutan notifikasi', () {
+    setUp(() {
+      PromoRepository.resetNotificationState();
+    });
+
+    final umkm = _umkm(
+      'umkm-1',
+      promo: const PromoPreference(
+        types: [PromoPreference.discount, 'Produk Baru'],
+        minDiscount: 20,
+      ),
+    );
+
+    test('belum ada yang dibuka: inboxFrom mengembalikan promo-1 lalu promo-2 (terbaru di atas), unreadCount = 2', () async {
+      final promos = await repository.fetchPromos();
+      final matches = repository.findMatching([umkm], promos);
+
+      final inbox = repository.inboxFrom(matches);
+      expect(inbox.map((m) => m.promo.id).toList(), ['promo-1', 'promo-2']);
+      expect(repository.unreadCount(matches), 2);
+    });
+
+    test('setelah markAsRead(\'promo-1\'): urutannya promo-2 lalu promo-1 (yang dibuka turun ke bawah), unreadCount = 1', () async {
+      final promos = await repository.fetchPromos();
+      final matches = repository.findMatching([umkm], promos);
+
+      repository.markAsRead('promo-1');
+      final inbox = repository.inboxFrom(matches);
+      expect(inbox.map((m) => m.promo.id).toList(), ['promo-2', 'promo-1']);
+      expect(repository.unreadCount(matches), 1);
+    });
+
+    test('setelah markAsRead(\'promo-1\') lalu markAsRead(\'promo-2\'): urutannya promo-1 lalu promo-2 (yang paling akhir dibuka ada di paling bawah), unreadCount = 0', () async {
+      final promos = await repository.fetchPromos();
+      final matches = repository.findMatching([umkm], promos);
+
+      repository.markAsRead('promo-1');
+      repository.markAsRead('promo-2');
+      final inbox = repository.inboxFrom(matches);
+      expect(inbox.map((m) => m.promo.id).toList(), ['promo-1', 'promo-2']);
+      expect(repository.unreadCount(matches), 0);
+    });
+
+    test('setelah dismiss(\'promo-2\'): inboxFrom hanya berisi promo-1, dan unreadCount = 1', () async {
+      final promos = await repository.fetchPromos();
+      final matches = repository.findMatching([umkm], promos);
+
+      repository.dismiss('promo-2');
+      final inbox = repository.inboxFrom(matches);
+      expect(inbox.map((m) => m.promo.id).toList(), ['promo-1']);
+      expect(repository.unreadCount(matches), 1);
+    });
+
+    test('markAsRead dipanggil dua kali untuk id yang sama tidak menggandakan item', () async {
+      final promos = await repository.fetchPromos();
+      final matches = repository.findMatching([umkm], promos);
+
+      repository.markAsRead('promo-1');
+      repository.markAsRead('promo-1');
+      final inbox = repository.inboxFrom(matches);
+      expect(inbox.length, 2);
+      expect(inbox.map((m) => m.promo.id).toList(), ['promo-2', 'promo-1']);
+    });
+  });
 }
 

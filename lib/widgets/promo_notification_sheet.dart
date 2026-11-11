@@ -66,6 +66,26 @@ class _PromoNotificationSheetState extends State<PromoNotificationSheet> {
     }
   }
 
+  /// Membuka detail UMKM dan menandai promo sudah dibaca.
+  void _open(PromoMatch match) {
+    _promoRepository.markAsRead(match.promo.id);
+    final navigator = Navigator.of(context);
+    navigator.pop();
+    navigator.pushNamed(
+      AppRoutes.umkmDetail,
+      arguments: match.umkm,
+    );
+  }
+
+  /// Menghitung format waktu relatif dari waktu dibuatnya promo.
+  String _formatTime(DateTime dateTime) {
+    final difference = DateTime.now().difference(dateTime);
+    if (difference.inDays < 1) {
+      return 'hari ini';
+    }
+    return '${difference.inDays} hari lalu';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -117,6 +137,8 @@ class _PromoNotificationSheetState extends State<PromoNotificationSheet> {
   }
 
   Widget _buildBody() {
+    final inbox = _promoRepository.inboxFrom(_matches);
+
     return switch (_status) {
       _SheetStatus.loading => const Center(
         child: CircularProgressIndicator(color: AppColors.primary),
@@ -149,9 +171,9 @@ class _PromoNotificationSheetState extends State<PromoNotificationSheet> {
           ),
         ),
       ),
-      _SheetStatus.success => _matches.isEmpty
+      _SheetStatus.success => inbox.isEmpty
           ? _buildEmpty()
-          : _buildList(),
+          : _buildList(inbox),
     };
   }
 
@@ -188,91 +210,129 @@ class _PromoNotificationSheetState extends State<PromoNotificationSheet> {
     );
   }
 
-  Widget _buildList() {
+  Widget _buildList(List<PromoMatch> inbox) {
     return ListView.builder(
       padding: const EdgeInsets.all(AppSpacing.page),
-      itemCount: _matches.length,
+      itemCount: inbox.length,
       itemBuilder: (context, index) {
-        final match = _matches[index];
+        final match = inbox[index];
         final umkm = match.umkm;
         final promo = match.promo;
+        final isRead = _promoRepository.isRead(promo.id);
 
         return Card(
           elevation: 0,
-          color: AppColors.surface,
+          color: isRead ? AppColors.surface : AppColors.softAccent,
           margin: const EdgeInsets.only(bottom: AppSpacing.field),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radius),
             side: const BorderSide(color: AppColors.border),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.page),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.softAccent,
-                    borderRadius: BorderRadius.circular(
-                      AppSpacing.compactRadius,
-                    ),
-                  ),
-                  child: Text(
-                    promo.type,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.small),
-                Text(
-                  umkm.name,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.muted,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  promo.title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.small),
-                Text(
-                  'Sesuai preferensimu: ${umkm.promo?.summary}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.primaryDark,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.field),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.umkmDetail,
-                        arguments: umkm,
-                      );
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSpacing.radius),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => _open(match),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.page),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (!isRead) ...[
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.small),
+                      ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isRead
+                              ? AppColors.neutralLight
+                              : AppColors.surface,
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.compactRadius,
+                          ),
+                        ),
+                        child: Text(
+                          promo.type,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: const Text('Lihat toko dan menu'),
+                      const SizedBox(width: AppSpacing.small),
+                      Text(
+                        _formatTime(promo.createdAt),
+                        style: const TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        color: AppColors.muted,
+                        tooltip: 'Tutup notifikasi',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () {
+                          _promoRepository.dismiss(promo.id);
+                          setState(() {});
+                        },
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.small),
+                  Text(
+                    umkm.name,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.muted,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    promo.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.small),
+                  Text(
+                    'Sesuai preferensimu: ${umkm.promo?.summary}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isRead ? AppColors.muted : AppColors.primaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.field),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton(
+                      onPressed: () => _open(match),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radius,
+                          ),
+                        ),
+                      ),
+                      child: const Text('Lihat toko dan menu'),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

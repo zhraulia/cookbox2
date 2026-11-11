@@ -123,12 +123,13 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
     return formatDistance(meters);
   }
 
-  /// Menghitung jumlah promo yang cocok dengan UMKM yang diikuti.
+  /// Menghitung jumlah promo yang belum dibuka untuk UMKM yang diikuti.
   Future<void> _updateNotificationCount() async {
     try {
       final promos = await _promoRepository.fetchPromos();
       if (!mounted) return;
-      final count = _promoRepository.findMatching(_umkmList, promos).length;
+      final matches = _promoRepository.findMatching(_umkmList, promos);
+      final count = _promoRepository.unreadCount(matches);
       setState(() {
         _matchingPromosCount = count;
       });
@@ -169,8 +170,13 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        persist: false,
+      ),
+    );
   }
 
   /// Create atau Update: buka form promo, tunggu hasilnya, lalu simpan.
@@ -194,12 +200,14 @@ class _UmkmListScreenState extends State<UmkmListScreen> {
       final promos = await _promoRepository.fetchPromos();
       final matching = _promoRepository.findMatching([updated], promos);
       if (!mounted) return;
-      if (matching.isNotEmpty) {
+      if (_promoRepository.unreadCount(matching) > 0) {
         final firstPromo = matching.first.promo;
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Promo cocok ditemukan: ${firstPromo.title}'),
+            duration: const Duration(seconds: 2),
+            persist: false,
             action: SnackBarAction(
               label: 'Lihat',
               onPressed: () => showPromoNotificationSheet(context),

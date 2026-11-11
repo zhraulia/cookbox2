@@ -12,12 +12,16 @@ class UmkmPromo {
   /// Persentase diskon, hanya terisi untuk jenis Diskon.
   final int? discountPercent;
 
+  /// Waktu promo diumumkan, dipakai untuk mengurutkan dari yang terbaru.
+  final DateTime createdAt;
+
   const UmkmPromo({
     required this.id,
     required this.umkmId,
     required this.type,
     required this.title,
     this.discountPercent,
+    required this.createdAt,
   });
 }
 
