@@ -447,10 +447,10 @@ class _HomeHeader extends StatelessWidget {
           onTap: onOpenFavorites,
         ),
         const SizedBox(width: 8),
-        // Aksi keranjang membuka alur checkout.
+        // Aksi keranjang membuka alur keranjang belanja.
         _HeaderAction(
           icon: Icons.shopping_bag_outlined,
-          onTap: () => Navigator.pushNamed(context, AppRoutes.checkout),
+          onTap: () => Navigator.pushNamed(context, AppRoutes.cart),
         ),
         const SizedBox(width: 8),
         _HeaderAction(icon: Icons.notifications_none_rounded),

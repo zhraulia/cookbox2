@@ -18,7 +18,9 @@ const String _pickupOption = 'Ambil ke UMKM';
 const int _deliveryFee = 5000;
 
 class CartCheckoutScreen extends StatefulWidget {
-  const CartCheckoutScreen({super.key});
+  const CartCheckoutScreen({super.key, required this.merchantName});
+
+  final String merchantName;
 
   @override
   State<CartCheckoutScreen> createState() => _CartCheckoutScreenState();
@@ -88,8 +90,8 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
     if (_isSubmitting) return;
     setState(() => _isSubmitting = true);
 
-    final items = List<CartItem>.unmodifiable(cartProvider.items);
-    final subtotal = cartProvider.subtotalPrice;
+    final items = cartProvider.itemsFor(widget.merchantName);
+    final subtotal = cartProvider.subtotalFor(widget.merchantName);
     final deliveryFee = _deliveryMethod == _deliveryOption ? _deliveryFee : 0;
     final total = subtotal + deliveryFee;
 
@@ -118,7 +120,7 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
 
       // Simpan pesanan yang berhasil dibuat ke OrderProvider agar muncul di Pesanan Saya.
       context.read<OrderProvider>().addOrder(order);
-      context.read<CartProvider>().clear();
+      context.read<CartProvider>().clearMerchant(widget.merchantName);
       Navigator.pushReplacementNamed(
         context,
         AppRoutes.orderConfirmation,
@@ -137,22 +139,24 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final cartProvider = context.watch<CartProvider>();
-    final isCartEmpty = cartProvider.items.isEmpty;
+    final merchantItems = cartProvider.itemsFor(widget.merchantName);
+    final isCartEmpty = merchantItems.isEmpty;
     final deliveryFee = _deliveryMethod == _deliveryOption ? _deliveryFee : 0;
-    final total = cartProvider.subtotalPrice + deliveryFee;
+    final subtotal = cartProvider.subtotalFor(widget.merchantName);
+    final total = subtotal + deliveryFee;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
-        title: const Text(
-          'Checkout Keranjang',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        title: Text(
+          'Checkout ${widget.merchantName}',
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: isCartEmpty
-          ? const EmptyView(
-              message: 'Keranjang kamu masih kosong',
+          ? EmptyView(
+              message: 'Tidak ada item dari ${widget.merchantName} di keranjang',
               icon: Icons.shopping_cart_outlined,
             )
           : IgnorePointer(
@@ -161,7 +165,7 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
                 padding: const EdgeInsets.all(AppSpacing.page),
                 children: [
                   _CartItemsSection(
-                    items: cartProvider.items,
+                    items: merchantItems,
                     onRemove: (itemId) =>
                         context.read<CartProvider>().removeItem(itemId),
                     onDecrease: (itemId) =>
@@ -178,7 +182,7 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
                     addressText: _deliveryLocation?.address ??
                         'Belum ada lokasi, ketuk Ubah Alamat',
                     onChangeAddress: _openLocationPicker,
-                    merchantNames: _merchantNames(cartProvider),
+                    merchantName: widget.merchantName,
                   ),
                   const SizedBox(height: AppSpacing.section),
                   _PaymentMethodSection(
@@ -190,7 +194,7 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
                   ),
                   const SizedBox(height: AppSpacing.section),
                   _PaymentSummarySection(
-                    subtotal: cartProvider.subtotalPrice,
+                    subtotal: subtotal,
                     deliveryFee: deliveryFee,
                     total: total,
                   ),
@@ -232,11 +236,6 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
             ),
     );
   }
-
-  List<String> _merchantNames(CartProvider cartProvider) => cartProvider.items
-      .map((cartItem) => cartItem.item.merchantName)
-      .toSet()
-      .toList();
 }
 
 // ==========================================
@@ -267,7 +266,7 @@ class _CartItemsSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.field),
         for (final cartItem in items)
-          _CartItemCard(
+          CartItemCard(
             cartItem: cartItem,
             onRemove: () => onRemove(cartItem.item.id),
             onDecrease: () => onDecrease(cartItem.item.id),
@@ -285,14 +284,14 @@ class _DeliveryMethodSection extends StatelessWidget {
     required this.onMethodChanged,
     required this.addressText,
     required this.onChangeAddress,
-    required this.merchantNames,
+    required this.merchantName,
   });
 
   final String selectedMethod;
   final ValueChanged<String> onMethodChanged;
   final String addressText;
   final VoidCallback onChangeAddress;
-  final List<String> merchantNames;
+  final String merchantName;
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +323,7 @@ class _DeliveryMethodSection extends StatelessWidget {
             onChangeAddress: onChangeAddress,
           )
         else
-          _PickupCard(merchantNames: merchantNames),
+          _PickupCard(merchantName: merchantName),
       ],
     );
   }
@@ -417,8 +416,9 @@ class _SectionHeading extends StatelessWidget {
   }
 }
 
-class _CartItemCard extends StatelessWidget {
-  const _CartItemCard({
+class CartItemCard extends StatelessWidget {
+  const CartItemCard({
+    super.key,
     required this.cartItem,
     required this.onRemove,
     required this.onDecrease,
@@ -582,9 +582,9 @@ class _AddressCard extends StatelessWidget {
 }
 
 class _PickupCard extends StatelessWidget {
-  const _PickupCard({required this.merchantNames});
+  const _PickupCard({required this.merchantName});
 
-  final List<String> merchantNames;
+  final String merchantName;
 
   @override
   Widget build(BuildContext context) {
@@ -599,7 +599,7 @@ class _PickupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  merchantNames.join(', '),
+                  merchantName,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: AppSpacing.small),

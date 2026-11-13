@@ -4,6 +4,7 @@ import '../models/delivery_location.dart';
 import '../models/item.dart';
 import '../models/order.dart';
 import '../screens/cart_checkout_screen.dart';
+import '../screens/cart_screen.dart';
 import '../screens/detail_menu_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/favorites_screen.dart';
@@ -23,6 +24,8 @@ import '../screens/review_screen.dart';
 // Import untuk Modul 5 (Pusat Bantuan & Pengaduan)
 import '../screens/support_screen.dart';
 import '../screens/add_report_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/state_views.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -35,7 +38,8 @@ class AppRoutes {
   static const String menuCatalog = '/menu-catalog';
   static const String favorites = '/favorites';
   static const String detailMenu = '/detail-menu';
-  // Route baru untuk checkout dan konfirmasi pesanan.
+  // Route keranjang dan checkout
+  static const String cart = '/cart';
   static const String checkout = '/checkout';
   static const String orderConfirmation = '/order-confirmation';
   // Route Modul 3: Status Pesanan dan Beri Ulasan
@@ -78,9 +82,35 @@ class AppRoutes {
           );
         }
         return null;
-      case checkout:
+      case cart:
         return MaterialPageRoute<void>(
-          builder: (_) => const CartCheckoutScreen(),
+          builder: (_) => const CartScreen(),
+          settings: settings,
+        );
+      case checkout:
+        final args = settings.arguments;
+        if (args is String) {
+          return MaterialPageRoute<void>(
+            builder: (_) => CartCheckoutScreen(merchantName: args),
+            settings: settings,
+          );
+        }
+        return MaterialPageRoute<void>(
+          builder: (context) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Checkout'),
+              backgroundColor: AppColors.surface,
+              foregroundColor: AppColors.ink,
+            ),
+            body: ErrorView(
+              message: 'Parameter UMKM tidak valid untuk checkout.',
+              onRetry: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ),
           settings: settings,
         );
       case orderConfirmation:
