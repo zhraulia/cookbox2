@@ -29,6 +29,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 950));
     await tester.pumpAndSettle();
 
-    expect(find.text('Daftar menu & paket bahan'), findsOneWidget);
+    expect(find.text('Paket Bahan Terlaris'), findsOneWidget);
   });
 }
