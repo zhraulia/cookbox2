@@ -87,6 +87,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('detail-back')));
     await tester.pumpAndSettle();
-    expect(find.text('Ayam Geprek Sambal Korek'), findsOneWidget);
+    // Judul yang sama muncul di grid katalog dan bagian menu populer Home.
+    expect(find.text('Ayam Geprek Sambal Korek'), findsNWidgets(2));
   });
 }

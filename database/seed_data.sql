@@ -14,11 +14,11 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 1. umkms (Sumber: lib/data/umkm_repository.dart -> UmkmRepository._umkmList)
 -- Catatan: Kategori menggunakan id dari tabel categories (1=Paket Masak, 2=Segar, 3=Lauk Instan, 4=Hemat Kos)
 INSERT INTO umkms (id, name, description, category_id, rating, address, phone_number, image_url, latitude, longitude) VALUES
-(1, 'Dapur Bu Tini', 'Paket masak rumahan dengan bumbu yang sudah ditakar.', 1, 4.9, 'Jl. Limau Manis No. 12, Padang', '081200000001', NULL, -0.9150, 100.4590),
-(2, 'Pasar Segar Bu Sari', 'Sayur dan bahan segar dipilih setiap hari.', 2, 4.8, 'Jl. Pasar Raya No. 5, Padang', '081200000002', NULL, -0.9500, 100.3600),
-(3, 'Kantin Mbak Sari', 'Lauk instan praktis untuk makan sehari-hari.', 3, 4.9, 'Jl. Kampus Unand, Padang', '081200000003', NULL, -0.9145, 100.4610),
-(4, 'Dapur Hemat Kampus', 'Menu hemat untuk anak kos dengan bahan sudah ditakar.', 4, 4.7, 'Jl. Limau Manis Selatan, Padang', '081200000004', NULL, -0.9250, 100.4560),
-(5, 'Dapur Barokah Kampus', 'Spesialis paket bumbu siap olah dan olahan Nusantara.', 1, 4.9, 'Jl. Dr. Hamka, Padang', '081200000005', NULL, -0.9005, 100.3490);
+(1, 'Dapur Bu Tini', 'Paket masak rumahan dengan bumbu yang sudah ditakar.', 1, 4.9, 'Jl. Limau Manis No. 12, Padang', '+6281200000001', NULL, -0.9150, 100.4590),
+(2, 'Pasar Segar Bu Sari', 'Sayur dan bahan segar dipilih setiap hari.', 2, 4.8, 'Jl. Pasar Raya No. 5, Padang', '+6281200000002', NULL, -0.9500, 100.3600),
+(3, 'Kantin Mbak Sari', 'Lauk instan praktis untuk makan sehari-hari.', 3, 4.9, 'Jl. Kampus Unand, Padang', '+6281200000003', NULL, -0.9145, 100.4610),
+(4, 'Dapur Hemat Kampus', 'Menu hemat untuk anak kos dengan bahan sudah ditakar.', 4, 4.7, 'Jl. Limau Manis Selatan, Padang', '+6281200000004', NULL, -0.9250, 100.4560),
+(5, 'Dapur Barokah Kampus', 'Spesialis paket bumbu siap olah dan olahan Nusantara.', 1, 4.9, 'Jl. Dr. Hamka, Padang', '+6281200000005', NULL, -0.9005, 100.3490);
 
 -- 2. menus (Sumber: lib/data/item_repository.dart -> ItemRepository._items)
 -- Dihubungkan ke umkms lewat merchantName, category_id dicocokkan ke categories
@@ -85,7 +85,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- 1. users (Pengguna uji awal)
 INSERT INTO users (id, name, phone_number, password_hash) VALUES
-(1, 'Pengguna Uji', '081200000099', 'GANTI_DENGAN_HASH');
+(1, 'Pengguna Uji', '+6281200000099', 'GANTI_DENGAN_HASH');
 
 -- 2. faqs (Sumber: lib/data/faq_repository.dart -> FaqRepository._faqs)
 INSERT INTO faqs (id, category, question, answer, icon_name, color_hex, sort_order) VALUES
