@@ -256,7 +256,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
         action: SnackBarAction(
           label: 'Lihat',
           textColor: Colors.white,
-          onPressed: () => Navigator.pushNamed(context, AppRoutes.checkout),
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
         ),
       ),
     );
