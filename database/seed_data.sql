@@ -62,6 +62,18 @@ INSERT INTO menu_recipe_steps (id, menu_id, step_no, instruction) VALUES
 (11, 4, 2, 'Tumis bawang merah dan cabai hingga harum.'),
 (12, 4, 3, 'Masukkan tempe dan kecap, aduk hingga bumbu meresap.');
 
+
+-- 5. umkm_updates (Sumber: lib/data/promo_repository.dart -> PromoRepository._promos)
+-- Catatan: kolom body tidak ada di model UmkmPromo, diisi teks pengisi sementara.
+-- menu_id dan category_id NULL karena model Dart belum punya padanannya.
+INSERT INTO umkm_updates (id, umkm_id, promo_type, discount_percent, title, body, menu_id, category_id, created_at) VALUES
+(1, 1, 'Diskon', 25, 'Diskon paket masak 25%', 'Dapur Bu Tini sedang memberi diskon paket masak 25%.', NULL, NULL, '2026-11-09 08:00:00'),
+(2, 1, 'Produk Baru', NULL, 'Paket bumbu rendang kini tersedia', 'Dapur Bu Tini punya produk baru: paket bumbu rendang.', NULL, NULL, '2026-11-08 15:00:00'),
+(3, 2, 'Diskon', 15, 'Diskon sayur segar 15%', 'Pasar Segar Bu Sari sedang memberi diskon sayur segar 15%.', NULL, NULL, '2026-11-07 10:00:00'),
+(4, 3, 'Paket Hemat', NULL, 'Paket lauk 3 hari lebih hemat', 'Kantin Mbak Sari menawarkan paket lauk 3 hari yang lebih hemat.', NULL, NULL, '2026-11-09 12:00:00'),
+(5, 4, 'Paket Hemat', NULL, 'Paket anak kos mingguan', 'Dapur Hemat Kampus menawarkan paket anak kos mingguan.', NULL, NULL, '2026-11-06 09:00:00');
+
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ---------------------------------------------------------------------
@@ -105,10 +117,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- =====================================================================
 -- CATATAN PEMETAAN DAN DATA YANG TIDAK BISA DIPETAKAN
 -- =====================================================================
--- 1. umkm_platform.umkms:
---    - Kolom 'image_url', 'latitude', dan 'longitude' tidak ada di dummy
---      UmkmRepository (model Umkm belum menyediakan URL foto dan koordinat),
---      sehingga bernilai NULL.
+--  1. umkm_platform.umkms:
+--    - Kolom 'image_url' tidak ada di dummy UmkmRepository (model Umkm
+--      belum menyediakan URL foto), sehingga bernilai NULL.
+--    - Koordinat latitude/longitude diambil dari UmkmRepository (koordinat
+--      dummy perkiraan lokasi UMKM).
 --
 -- 2. umkm_platform.menus:
 --    - Kolom 'is_active' diisi 1 (aktif) karena model Item di Flutter
@@ -138,7 +151,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 --
 -- 6. Tabel yang sengaja tidak di-seed:
 --    - umkm_platform.categories: Sudah di-insert 4 baris oleh 01_umkm_platform.sql.
---    - umkm_platform.umkm_updates: Tidak ada data dummy di repository Flutter.
 --    - cookbox_app.favorites: Diinisialisasi kosong (belum ada data awal).
 --    - cookbox_app.follows: Diinisialisasi kosong (belum ada data awal ikuti UMKM).
 --    - cookbox_app.reports: Dummy pengaduan belum ada di layer repository.
