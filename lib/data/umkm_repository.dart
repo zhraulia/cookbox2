@@ -16,7 +16,7 @@ class UmkmRepository {
       category: 'Paket Masak',
       rating: 4.9,
       address: 'Jl. Limau Manis No. 12, Padang',
-      phoneNumber: '081200000001',
+      phoneNumber: '+6281200000001',
       // Koordinat dummy perkiraan lokasi UMKM
       latitude: -0.9150,
       longitude: 100.4590,
@@ -28,7 +28,7 @@ class UmkmRepository {
       category: 'Segar',
       rating: 4.8,
       address: 'Jl. Pasar Raya No. 5, Padang',
-      phoneNumber: '081200000002',
+      phoneNumber: '+6281200000002',
       // Koordinat dummy perkiraan lokasi UMKM
       latitude: -0.9500,
       longitude: 100.3600,
@@ -40,7 +40,7 @@ class UmkmRepository {
       category: 'Lauk Instan',
       rating: 4.9,
       address: 'Jl. Kampus Unand, Padang',
-      phoneNumber: '081200000003',
+      phoneNumber: '+6281200000003',
       // Koordinat dummy perkiraan lokasi UMKM
       latitude: -0.9145,
       longitude: 100.4610,
@@ -52,7 +52,7 @@ class UmkmRepository {
       category: 'Hemat Kos',
       rating: 4.7,
       address: 'Jl. Limau Manis Selatan, Padang',
-      phoneNumber: '081200000004',
+      phoneNumber: '+6281200000004',
       // Koordinat dummy perkiraan lokasi UMKM
       latitude: -0.9250,
       longitude: 100.4560,
@@ -64,7 +64,7 @@ class UmkmRepository {
       category: 'Paket Masak',
       rating: 4.9,
       address: 'Jl. Dr. Hamka, Padang',
-      phoneNumber: '081200000005',
+      phoneNumber: '+6281200000005',
       // Koordinat dummy perkiraan lokasi UMKM
       latitude: -0.9005,
       longitude: 100.3490,
